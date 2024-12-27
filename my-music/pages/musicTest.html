@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>音乐播放器</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<meta http-equiv="refresh" content="200">
+	<link rel="stylesheet" type="text/css" href="../css/musicTestStyle.css">
+</head>
+<body>
+	<div class="backgr">
+		<div class="left">
+			<textarea id="lrc" class="words">
+				[00:00.00]告白气球
+				[00:04.55]词：方文山 曲：周杰伦
+				[00:09.23]演唱：周杰伦
+				[00:22.92]塞纳河畔 左岸的咖啡
+				[00:26.04]我手一杯 品尝你的美
+				[00:28.95]留下唇印的嘴
+				[00:31.98]
+				[00:33.67]花店玫瑰 名字写错谁
+				[00:36.76]告白气球 风吹到对街
+				[00:39.61]微笑在天上飞
+				[00:42.67]
+				[00:43.07]你说你有点难追 想让我知难而退
+				[00:48.98]礼物不需挑最贵 只要香榭的落叶
+				[00:54.38]营造浪漫的约会 不害怕搞砸一切
+				[00:59.69]拥有你就拥有 全世界
+				[01:04.26]
+				[01:04.54]亲爱的 爱上你 从那天起
+				[01:10.98]甜蜜的很轻易
+				[01:14.96]亲爱的 别任性 你的眼睛
+				[01:21.76]在说我愿意
+				[01:25.68]
+				[01:44.12]
+				[01:48.18]塞纳河畔 左岸的咖啡
+				[01:51.36]我手一杯 品尝你的美
+				[01:54.31]留下唇印的嘴
+				[01:57.44]
+				[01:59.09]花店玫瑰 名字写错谁
+				[02:01.71]告白气球 风吹到对街
+				[02:04.78]微笑在天上飞
+				[02:07.97]
+				[02:08.31]你说你有点难追 想让我知难而退
+				[02:14.33]礼物不需挑最贵 只要香榭的落叶
+				[02:19.62]营造浪漫的约会 不害怕搞砸一切
+				[02:25.01]拥有你就拥有 全世界
+				[02:29.60]
+				[02:29.90]亲爱的 爱上你 从那天起
+				[02:36.48]甜蜜的很轻易
+				[02:40.44]亲爱的 别任性 你的眼睛
+				[02:47.09]在说我愿意
+				[02:50.80]
+				[02:51.29]亲爱的 爱上你 恋爱日记
+				[02:57.70]飘香水的回忆
+				[03:01.53]一整瓶 的梦境 全都有你
+				[03:08.39]搅拌在一起
+				[03:12.34]亲爱的别任性 你的眼睛
+				[03:20.33]在说我愿意
+				[03:27.47]
+			</textarea>
+		</div>
+		<div class="right">
+			<ul>
+				<li><img id="songpic" src="../images/123456.jpg"></li>
+				<li id="songname">《告白气球》</li>
+				<div class="text"></div>
+			</ul>
+		</div>
+		<div class="foot">
+			<div class="btns">
+				<div class="btn1"></div>
+				<div class="btn2"></div>
+				<div class="btn3"></div>
+			</div>
+		</div>
+	</div>
+
+	<audio id="music" src="../song/gaobai.mp3"></audio>
+
+	<!-- 使用js处理点击播放歌曲并更换播放样式按钮图片，再次点击暂停播放并切换展厅按钮样式图片。然后歌词会随着当前播放进度改变颜色，并始终在显示范围内。 -->
+	<script type="text/javascript" src="../js/jquery-1.10.2.js"></script>
+	<script type="text/javascript">
+
+		// 处理点击播放或暂停歌曲并更换播放样式按钮图片
+		var flag = 0;
+		$( ".btn2" ).click( function () {
+			if (flag == 0) {
+				// get(0) 的含意？
+				$( "#music" ).get( 0 ).play();
+				// 或者直接用this表示当前触发的对象$( this ).css(...);
+				$( ".btn2" ).css( "background", "url(../images/pause.png)" );
+				flag = 1;
+			} else {
+				$( "#music" ).get( 0 ).pause();
+				$( this ).css( "background", "url(../images/play.png)" );
+				flag = 0;
+			}
+		} );
+
+		// 处理歌此显示，当前播放变颜色，并始终能看到歌词。
+		var lrc = $( "#lrc" ).val(); // 获取id为lrc的textarea里的属性值（文字）用来处理
+    	// 下面分割后，00:39.61]微笑在天上飞
+    	var lrcArr = lrc.split( "[" ); // 把真个歌词作为字符串，用‘【’来分割
+        var html = ""; // 定义html变量用来存储歌词样式以html表现。
+        //console.log(lrcArr); // 调试
+        /*	
+        	需要处理的字符串：
+			[00:00.00]告白气球[00:04.55]词：方文山 曲：周杰伦[00:09.23]演唱：周杰伦
+			处理后的字符串为：
+			时间+歌词，时间作为标记来定位下一个歌词，一直显示并改变其颜色。
+        */
+    	for ( var a = 0; a < lrcArr.length; a++ ) {
+    		 var arr = lrcArr[ a ].split( "]" );
+    		 //console.log(arr); // 调试
+    		 var timer = arr[ 0 ].split( "." ); // 以下三行提取并处理时间
+    		 //console.log(timer); // 调试
+    		 //取出分钟和秒
+    		 var stime = timer[ 0 ].split( ":" );
+    		 //console.log(stime); // 调试
+    		 //将分钟和秒转换成秒
+    		 var ms = stime[ 0 ] * 60 + stime[ 1 ] * 1;
+    		 //console.log(ms); // 调试
+             //取出每一行歌词
+             var message = arr[ 1 ];
+             //console.log(message); // 调试
+             if ( message ) {
+             	// 用时间给每一行歌词的p标签设置id
+            	html += "<p id='"+ms+"'>"+message+"</p>";
+             }
+             $( ".text" ).html(html);
+    	}
+    	$( "#music" ).get( 0 ).addEventListener( "timeupdate", function(){
+    		var timer = this.currentTime;
+    		console.log(timer); // 调试
+    		var s = parseInt( timer );
+    		for ( var i = 0; i < s; i++ ) {
+    			$( "#" + i ).addClass( "color" ).siblings().removeClass( "color" );
+    		}
+    		$( ".text" ).scrollTop( ( $( ".color" ).index() - 8 ) * 30 );
+    	} );
+
+	</script>
+
+</body>
+</html
